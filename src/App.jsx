@@ -50,23 +50,19 @@ export default function App(){
  function submit(event){event.preventDefault();const f=editor.form;const err=findError(f);if(err){setError('Unable to save item. Check the form.');return;}const original=editor.id?items.find(x=>x.id===editor.id):null;const next={...f, title:f.title.trim(),price:Number(f.price),description:f.description.trim(),pickup:f.pickup.trim(),photos:original?.photos || [],emoji:original?.emoji || '📦',owner:'you',seller:currentUser.name,sellerEmail:currentUser.email};
  if(editor.id){setItems(items.map(x=>x.id===editor.id?{...x,...next}:x));setNotice('Changes saved.');}else{setItems([{...next,id:`m-${Date.now()}`,status:'active'},...items]);setNotice('Item listed.');}setEditor(null);setSelected(null);}
  function reset(){setItems(seed);setSelected(null);setEditor(null);setQuery('');setCategory('all');setSort('featured');setNotice('Example items restored.');}
- return <div className="market-app app-shell">
-  <aside className="sidebar">
-   <div className="sidebar-top">
-    <button className="sidebar-brand" onClick={()=>{setSelected(null);setCategory('all')}}>
+ return <div className="market-app">
+  <header className="topbar">
+   <div className="topbar-inner">
+    <button className="brand" onClick={()=>{setSelected(null);setCategory('all')}}>
      <span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v1.5a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M5 13v7h14v-7"/><path d="M10 20v-4h4v4"/></svg></span>
-     <span className="brand-name">Campus<br/>Marketplace</span>
+     <span className="brand-name">Campus Marketplace</span>
     </button>
-    <nav aria-label="Main navigation">
-     <ul className="nav-list">
-      <li><button className="nav-item active" aria-current="page" onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}><svg className="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg>Home</button></li>
-      <li><button className="nav-item" onClick={()=>document.getElementById('discover')?.scrollIntoView({behavior:'smooth'})}><svg className="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>Browse listings</button></li>
-      <li><button className="nav-item" onClick={()=>startEdit(null)}><svg className="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Sell an item</button></li>
-     </ul>
-    </nav>
+    <div className="topbar-actions">
+     <button className="btn btn-primary" onClick={()=>startEdit(null)}>+ Sell an item</button>
+     <span className="user-chip"><span className="avatar" aria-hidden="true">{currentUser.name[0]}</span><span>{currentUser.name}</span></span>
+    </div>
    </div>
-   <div className="user-card"><span className="avatar" aria-hidden="true">{currentUser.name[0]}</span><span className="user-meta"><strong>{currentUser.name}</strong><small>{currentUser.email}</small></span></div>
-  </aside>
+  </header>
   <main className="main"><div className="main-inner">
    <section className="hero" aria-labelledby="hero-title">
     <div className="hero-copy">
@@ -74,44 +70,48 @@ export default function App(){
      <h1 id="hero-title">Everything you need, right around campus.</h1>
      <p className="hero-sub">Second-hand items from GUC students · All prices in EGP</p>
     </div>
-    <div className="hero-search">
-     <label className="search-box"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" aria-label="Search listings" placeholder="Search textbooks, lamps, headphones…" value={query} onChange={e=>setQuery(e.target.value)}/></label>
-     <button className="btn btn-primary btn-lg" onClick={()=>document.getElementById('discover')?.scrollIntoView({behavior:'smooth'})}>Explore listings</button>
-    </div>
-    <ul className="cat-tiles" aria-label="Shop by category">
-     {categories.slice(1).map(c=><li key={c}><button className="cat-tile" onClick={()=>{setCategory(c);document.getElementById('discover')?.scrollIntoView({behavior:'smooth'})}}>
-      <span className="cat-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{{
-       textbooks:<><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h7"/></>,
-       electronics:<><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></>,
-       furniture:<><path d="M5 11V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3"/><path d="M3 13a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v5H3z"/><path d="M5 18v2M19 18v2"/></>,
-       clothing:<><path d="M8 3l4 2 4-2 5 4-3 3-2-1v12H8V9l-2 1-3-3z"/></>,
-       other:<><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></>,
-      }[c]}</svg></span>
-      <span>{cap(c)}</span>
-     </button></li>)}
-    </ul>
+    <div><button className="btn btn-primary btn-lg" onClick={()=>document.getElementById('discover')?.scrollIntoView({behavior:'smooth'})}>Explore listings</button></div>
    </section>
-   {/* Interim browse markup — rebuilt in pass (b) */}
-   <section className="discover" id="discover">
-    <header className="page-header">
-     <div className="title-row"><h2>Browse listings</h2><span className="pill pill-count">{listing.length} results</span></div>
-     <button className="btn btn-primary" onClick={()=>startEdit(null)}>+ Sell an item</button>
-    </header>
-    <div className="card toolbar">
-     <label className="field select-field"><span className="field-label">Category</span><select value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option value={c} key={c}>{c==='all'?'All items':cap(c)}</option>)}</select></label>
-     <label className="field select-field"><span className="field-label">Sort</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label>
-    </div>
-    {notice&&<p className="notice" role="status"><span>{notice}</span><button className="icon-btn" aria-label="Dismiss message" onClick={()=>setNotice('')}>×</button></p>}
-    <div className="listing-grid">{listing.map(item=><article className={item.status==='sold'?'listing-card is-sold':'listing-card'} key={item.id}>
-     <div className="card-photo" onClick={()=>setSelected(item.id)}><ListingImage src={item.photos?.[0]} alt={item.title} emoji={item.emoji} className="listing-img" /></div>
-     <div className="card-body">
-      <div className="pill-row"><span className={`status-pill status-${item.status}`}>{item.status==='sold'?'Sold':'Active'}</span><span className="pill pill-neutral">{cap(item.condition)}</span></div>
-      <div className="card-title-row"><h3>{item.title}</h3><strong className="price">EGP {item.price.toLocaleString()}</strong></div>
-      <p className="card-pickup">{item.pickup || 'Arrange directly with seller'}</p>
-      <button className="btn btn-secondary btn-block" aria-label={`View details for ${item.title}`} onClick={()=>setSelected(item.id)}>Details</button>
-     </div>
-    </article>)}{listing.length===0&&<p className="card empty-state">No listings match your search.</p>}</div>
-   </section>
+   <div className="discover" id="discover">
+    <section className="shop-cats" aria-labelledby="shop-cats-title">
+     <h2 className="section-label" id="shop-cats-title">Shop by category</h2>
+     <ul className="cat-strip">
+      {categories.map(c=><li key={c}><button className="cat-tile" aria-pressed={category===c} onClick={()=>setCategory(c)}>
+       <span className="cat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{{
+        all:<><rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></>,
+        textbooks:<><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M8 7h7"/></>,
+        electronics:<><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></>,
+        furniture:<><path d="M5 11V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3"/><path d="M3 13a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v5H3z"/><path d="M5 18v2M19 18v2"/></>,
+        clothing:<><path d="M8 3l4 2 4-2 5 4-3 3-2-1v12H8V9l-2 1-3-3z"/></>,
+        other:<><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></>,
+       }[c]}</svg></span>
+       <span>{c==='all'?'All items':cap(c)}</span>
+      </button></li>)}
+     </ul>
+    </section>
+    <section className="browse" aria-labelledby="browse-title">
+     <header className="browse-head">
+      <div>
+       <h2 id="browse-title">Browse listings</h2>
+       <p className="result-count">{listing.length} {listing.length===1?'result':'results'}{query&&<> for “{query}”</>}</p>
+      </div>
+      <div className="browse-tools">
+       <label className="search-box"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" aria-label="Search listings" placeholder="Search textbooks, lamps, headphones…" value={query} onChange={e=>setQuery(e.target.value)}/></label>
+       <label className="sort-box"><span>Sort</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="featured">Featured</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option></select></label>
+      </div>
+     </header>
+     {notice&&<p className="notice" role="status"><span>{notice}</span><button className="icon-btn" aria-label="Dismiss message" onClick={()=>setNotice('')}>×</button></p>}
+     <div className="listing-grid">{listing.map(item=><article className={item.status==='sold'?'listing-card is-sold':'listing-card'} key={item.id}>
+      <div className="card-photo" onClick={()=>setSelected(item.id)}><ListingImage src={item.photos?.[0]} alt={item.title} emoji={item.emoji} className="listing-img" /></div>
+      <div className="card-body">
+       <div className="pill-row"><span className={`cond-pill cond-${item.condition}`}>{item.condition==='new'&&<svg className="cond-star" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>}{cap(item.condition)}</span>{item.status==='sold'&&<span className="status-pill status-sold">Sold out</span>}</div>
+       <div className="card-title-row"><h3>{item.title}</h3><strong className="price">EGP {item.price.toLocaleString()}</strong></div>
+       <p className="card-pickup">{item.pickup || 'Arrange directly with seller'}</p>
+       <button className="btn btn-secondary btn-block" aria-label={`View details for ${item.title}`} onClick={()=>setSelected(item.id)}>Details</button>
+      </div>
+     </article>)}{listing.length===0&&<p className="card empty-state">No listings match your search.</p>}</div>
+    </section>
+   </div>
    <footer className="site-footer"><button className="btn btn-secondary" onClick={reset}>Reset demo</button></footer>
   </div></main>
   {selected&&(()=>{
@@ -121,24 +121,37 @@ export default function App(){
    const body=encodeURIComponent(`Hi ${item.seller},\n\nI'm interested in your listing "${item.title}" (EGP ${item.price}). Is it still available?\n\n`);
    return <div className="overlay" onMouseDown={e=>e.target===e.currentTarget&&setSelected(null)}>
     <section className="detail-panel" role="dialog" aria-modal="true" aria-label="Item details">
-     <button className="close" aria-label="Close item details" onClick={()=>setSelected(null)}>×</button>
-     <div className="detail-visual">
-      <ListingImage src={images[activePhoto] || images[0]} alt={`${item.title} photo ${activePhoto+1}`} emoji={item.emoji} className="detail-img" />
+     <div className="dv-top">
+      <nav className="dv-crumbs" aria-label="Breadcrumb"><span>Browse</span><span aria-hidden="true">/</span><span>{cap(item.category)}</span><span aria-hidden="true">/</span><strong>{item.title}</strong></nav>
+      <button className="close" aria-label="Close item details" onClick={()=>setSelected(null)}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
      </div>
-     {images.length>1&&<div className="detail-thumbs" aria-label="Item photos">{images.map((src,index)=><button type="button" key={index} className={activePhoto===index?'thumb active':'thumb'} aria-label={`Show photo ${index+1} of ${images.length}`} aria-pressed={activePhoto===index} onClick={()=>setActivePhoto(index)}><ListingImage src={src} alt="" emoji={item.emoji} className="thumb-img" /></button>)}</div>}
-     <p className="section-kicker">{cap(item.category)} · {cap(item.condition)}</p>
-     <h2>{item.title}</h2>
-     <div className="detail-price-row"><h3>EGP {item.price.toLocaleString()}</h3><span className={`status-pill status-${item.status}`}>{item.status==='sold'?'Sold':'Active'}</span></div>
-     <p className="item-description">{item.description||'No description supplied.'}</p>
-     <div className="detail-meta"><p><strong>Pickup</strong><br/>{item.pickup || 'Arrange directly with seller'}</p><p><strong>Seller</strong><br/>{item.seller}</p></div>
-     {item.owner==='you'
-       ? <button className="sell-cta" onClick={()=>startEdit(item)}>Edit your listing</button>
-       : item.status==='sold'
-         ? <p className="fineprint">This item is marked as sold.</p>
-         : <a className="sell-cta contact-seller" href={`mailto:${item.sellerEmail}?subject=${subject}&body=${body}`}>✉ Contact seller</a>}
+     <div className="dv-body">
+      <div className="dv-media">
+       <div className="dv-frame"><ListingImage src={images[activePhoto] || images[0]} alt={`${item.title} photo ${activePhoto+1}`} emoji={item.emoji} className="dv-img" /></div>
+       {images.length>1&&<div className="dv-thumbs" aria-label="Item photos">{images.map((src,index)=><button type="button" key={index} className={activePhoto===index?'dv-thumb active':'dv-thumb'} aria-label={`Show photo ${index+1} of ${images.length}`} aria-pressed={activePhoto===index} onClick={()=>setActivePhoto(index)}><ListingImage src={src} alt="" emoji={item.emoji} className="dv-thumb-img" /></button>)}</div>}
+      </div>
+      <div className="dv-info">
+       <p className="dv-kicker">{cap(item.category)} · {cap(item.condition)}</p>
+       <h2 className="dv-title">{item.title}</h2>
+       <div className="dv-price-row"><p className="dv-price">EGP {item.price.toLocaleString()}</p>{item.status==='sold'&&<span className="status-pill status-sold">Sold out</span>}</div>
+       <p className="dv-desc" tabIndex={0} aria-label="Description">{item.description||'No description supplied.'}</p>
+       <dl className="dv-facts">
+        <div><dt>Pickup</dt><dd>{item.pickup || 'Arrange directly with seller'}</dd></div>
+        <div><dt>Condition</dt><dd><span className={`cond-pill cond-${item.condition}`}>{item.condition==='new'&&<svg className="cond-star" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>}{cap(item.condition)}</span></dd></div>
+       </dl>
+       <div className="dv-buy">
+        <div className="dv-seller"><span className="dv-avatar" aria-hidden="true">{(item.seller||'?').charAt(0)}</span><div><span className="dv-seller-label">Seller</span><strong>{item.seller}</strong></div></div>
+        {item.owner==='you'
+          ? <button className="btn btn-primary dv-cta" onClick={()=>startEdit(item)}>Edit your listing</button>
+          : item.status==='sold'
+            ? <p className="dv-sold-note">This item is marked as sold.</p>
+            : <><a className="btn btn-primary dv-cta" href={`mailto:${item.sellerEmail}?subject=${subject}&body=${body}`}><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Contact seller</a><p className="dv-help">Opens your email app with a message to the seller.</p></>}
+       </div>
+      </div>
+     </div>
     </section>
    </div>;
   })()}
-  {editor&&<div className="overlay" onMouseDown={e=>e.target===e.currentTarget&&setEditor(null)}><section className="sell-modal" role="dialog" aria-modal="true" aria-label={editor.id?'Edit item':'Sell item'}><button className="close" aria-label="Close form" onClick={()=>setEditor(null)}>×</button><div className="modal-head"><div><p className="section-kicker">CAMPUS EXCHANGE</p><h2>{editor.id?'Edit your listing':'Sell an item'}</h2><p>Add the details and we'll take care of the rest.</p></div></div><form onSubmit={submit}><div className="field-grid"><label><span>Item title *</span><input value={editor.form.title} onChange={e=>setEditor(s=>({...s,form:{...s.form,title:e.target.value}}))} placeholder="What are you selling?"/></label><label><span>Price (EGP) *</span><input type="number" min="0" step="0.01" value={editor.form.price} onChange={e=>setEditor(s=>({...s,form:{...s.form,price:e.target.value}}))} placeholder="Price"/></label><label><span>Category *</span><select value={editor.form.category} onChange={e=>setEditor(s=>({...s,form:{...s.form,category:e.target.value}}))}><option value="">Select</option>{categories.slice(1).map(c=><option value={c} key={c}>{cap(c)}</option>)}</select></label><label><span>Condition *</span><select value={editor.form.condition} onChange={e=>setEditor(s=>({...s,form:{...s.form,condition:e.target.value}}))}><option value="">Select</option>{conditions.map(c=><option value={c} key={c}>{cap(c)}</option>)}</select></label><label className="wide"><span>Description</span><textarea value={editor.form.description} onChange={e=>setEditor(s=>({...s,form:{...s.form,description:e.target.value}}))} placeholder="Description" rows="5"/></label><label className="wide"><span>Pickup / meetup location</span><input value={editor.form.pickup} onChange={e=>setEditor(s=>({...s,form:{...s.form,pickup:e.target.value}}))} placeholder="e.g. Library entrance or arrange on campus" /></label><label className="wide"><span>Seller contact email</span><input value={currentUser.email} readOnly aria-readonly="true" className="readonly-input"/><small className="email-helper">Taken from your registered account, so buyers can contact you about this item.</small></label>{editor.id&&<label><span>Status</span><select className={`status-select status-select-${editor.form.status}`} value={editor.form.status} onChange={e=>setEditor(s=>({...s,form:{...s.form,status:e.target.value}}))}><option value="active">Active</option><option value="sold">Sold</option></select></label>}</div>{error&&<p className="alert" role="alert">{error}</p>}<div className="modal-foot"><button type="button" onClick={()=>setEditor(null)}>Cancel</button><button className="sell-cta" type="submit">{editor.id?'Save changes':'Publish item'}</button></div></form></section></div>}
+  {editor&&<div className="overlay" onMouseDown={e=>e.target===e.currentTarget&&setEditor(null)}><section className="sell-modal" role="dialog" aria-modal="true" aria-label={editor.id?'Edit item':'Sell item'}><button className="close" aria-label="Close form" onClick={()=>setEditor(null)}>×</button><div className="modal-head"><div><p className="section-kicker">CAMPUS EXCHANGE</p><h2>{editor.id?'Edit your listing':'Sell an item'}</h2><p>Add the details and we'll take care of the rest.</p></div></div><form onSubmit={submit}><div className="field-grid"><label><span>Item title *</span><input value={editor.form.title} onChange={e=>setEditor(s=>({...s,form:{...s.form,title:e.target.value}}))} placeholder="What are you selling?"/></label><label><span>Price (EGP) *</span><input type="number" min="0" step="0.01" value={editor.form.price} onChange={e=>setEditor(s=>({...s,form:{...s.form,price:e.target.value}}))} placeholder="Price"/></label><label><span>Category *</span><select value={editor.form.category} onChange={e=>setEditor(s=>({...s,form:{...s.form,category:e.target.value}}))}><option value="">Select</option>{categories.slice(1).map(c=><option value={c} key={c}>{cap(c)}</option>)}</select></label><label><span>Condition *</span><select value={editor.form.condition} onChange={e=>setEditor(s=>({...s,form:{...s.form,condition:e.target.value}}))}><option value="">Select</option>{conditions.map(c=><option value={c} key={c}>{cap(c)}</option>)}</select></label><label className="wide"><span>Description</span><textarea value={editor.form.description} onChange={e=>setEditor(s=>({...s,form:{...s.form,description:e.target.value}}))} placeholder="Description" rows="5"/></label><label className="wide"><span>Pickup / meetup location</span><input value={editor.form.pickup} onChange={e=>setEditor(s=>({...s,form:{...s.form,pickup:e.target.value}}))} placeholder="e.g. Library entrance or arrange on campus" /></label><label className="wide"><span>Seller contact email</span><input value={currentUser.email} readOnly aria-readonly="true" className="readonly-input"/><small className="email-helper">Taken from your registered account, so buyers can contact you about this item.</small></label>{editor.id&&<label><span>Status</span><select className={`status-select status-select-${editor.form.status}`} value={editor.form.status} onChange={e=>setEditor(s=>({...s,form:{...s.form,status:e.target.value}}))}><option value="active">For sale</option><option value="sold">Sold out</option></select></label>}</div>{error&&<p className="alert" role="alert">{error}</p>}<div className="modal-foot"><button type="button" onClick={()=>setEditor(null)}>Cancel</button><button className="sell-cta" type="submit">{editor.id?'Save changes':'Publish item'}</button></div></form></section></div>}
  </div>;
 }
